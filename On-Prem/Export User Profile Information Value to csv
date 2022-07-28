@@ -1,0 +1,23 @@
+Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction SilentlyContinue   
+   
+$siteUrl = "http://myintra.tp.local"   
+$outputFile = "c:\temp\UserProperties.csv"    
+$Context = Get-SPServiceContext -Site $siteUrl   
+$userprofileManager = New-Object Microsoft.Office.Server.UserProfiles.UserProfileManager($Context);   
+$Userprofiles = $userprofileManager.GetEnumerator()   
+   
+$collection = @()   
+foreach ($Userprofile in $Userprofiles) {   
+    
+   $profileProperty = "" |    
+   select "PreferredName", "AccountName", "WorkEmail", "officeloctaion",  "Floor", "Manager" 
+   $profileProperty.PreferredName = $Userprofile["PreferredName"]
+   $profileProperty.AccountName = $Userprofile["AccountName"] 
+   $profileProperty.WorkEmail = $Userprofile["WorkEmail"]    
+   $profileProperty.officeloctaion = $Userprofile["officeloctaion"]   
+   $profileProperty.Floor = $Userprofile["Floor"]    
+   $profileProperty.Manager = $Userprofile["Manager"]    
+       
+   $collection += $profileProperty   
+}   
+$collection | Export-Csv $outputFile –NoType 
