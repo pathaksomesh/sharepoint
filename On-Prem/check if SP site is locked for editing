@@ -1,0 +1,27 @@
+Add-pssnapin Microsoft.SharePoint.Powershell -ErrorAction silentlycontinue
+ 
+#Get All Site Collections
+$Sites = Get-SPWebApplication "http://myintra" | Get-SPSite -limit all | foreach {
+ 
+#Check Lock
+if ($_.ReadOnly -eq $false -and $_.ReadLocked -eq $false -and $_.WriteLocked -eq $false)
+{
+$Result ="Unlocked"
+}
+#Read-only
+elseif ($_.ReadOnly -eq $true -and $_.ReadLocked -eq $false -and $_.WriteLocked -eq $true)
+{
+$Result = "Read-Only"
+}
+#Adding Content Prevented
+elseif ($_.WriteLocked -eq $true -and $_.ReadLocked -eq $false -and $_.ReadOnly -eq $false)
+{
+$Result = "Adding Content not Allowed"
+}
+#acessdenied
+elseif ($_.ReadOnly -eq $null -and $_.ReadLocked -eq $null -and $_.WriteLocked -eq $null)
+{
+$Result="Access Denied"
+}
+$_.RootWeb.Title +"`t" + $_.URL + "`t" + $Result | Out-File "c:\temp\spsitestatus.txt" -Append
+ 
